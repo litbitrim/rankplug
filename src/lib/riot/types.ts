@@ -1,0 +1,6 @@
+export type RiotAccount = { puuid: string; gameName: string; tagLine: string; };
+export type RiotSummoner = { id?: string; accountId?: string; puuid: string; profileIconId: number; summonerLevel: number; };
+export type RiotLeagueEntry = { queueType: string; tier: string; rank: string; leaguePoints: number; wins: number; losses: number; hotStreak?: boolean; veteran?: boolean; freshBlood?: boolean; };
+export type RiotParticipant = { puuid: string; riotIdGameName?: string; riotIdTagline?: string; summonerName?: string; teamId: 100|200; win: boolean; championName: string; champLevel: number; teamPosition?: string; individualPosition?: string; kills: number; deaths: number; assists: number; totalMinionsKilled: number; neutralMinionsKilled: number; goldEarned: number; totalDamageDealtToChampions: number; visionScore: number; item0: number; item1: number; item2: number; item3: number; item4: number; item5: number; item6: number; summoner1Id: number; summoner2Id: number; tripleKills: number; quadraKills: number; pentaKills: number; };
+export type RiotMatch = { metadata: { matchId: string; participants: string[]; }; info: { gameStartTimestamp: number; gameDuration: number; queueId: number; participants: RiotParticipant[]; }; };
+export type RiotLiveGame = { gameId: number; participants: any[]; };
