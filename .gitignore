@@ -47,3 +47,11 @@ next-env.d.ts
 *.pem
 *.key
 .vercel
+
+# secrets
+.env
+.env.local
+.env*.local
+*.pem
+*.key
+.vercel

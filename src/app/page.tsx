@@ -1,97 +1,68 @@
-"use client";
+'use client'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-
-type LbEntry = {
-  rank: number;
-  summonerId: string;
-  puuid: string;
-  leaguePoints: number;
-  wins: number;
-  losses: number;
-  winrate: number;
-};
+type Entry = { rank: number; puuid: string; leaguePoints: number; wins: number; losses: number; winrate: number }
 
 export default function Home() {
-  const router = useRouter();
-  const [input, setInput] = useState("stacksmaxxing#69420");
-  const [platform, setPlatform] = useState("euw");
-  const [leaders, setLeaders] = useState<LbEntry[]>([]);
-
-  function search() {
-    const [name, tag] = input.split("#");
-    if (!name || !tag) return;
-    router.push(`/profile/${platform}/${encodeURIComponent(name.trim())}/${encodeURIComponent(tag.trim())}`);
-  }
+  const [input, setInput] = useState('')
+  const [region, setRegion] = useState('euw')
+  const [top, setTop] = useState<Entry[]>([])
+  const [topLoading, setTopLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
-    fetch("/api/leaderboard/euw?queue=solo&tier=challenger")
-      .then((r) => r.json())
-      .then((d) => setLeaders((d.entries || []).slice(0, 10)))
-      .catch(() => {});
-  }, []);
+    fetch('/api/leaderboard/euw?queue=solo&tier=challenger&limit=10')
+      .then(r => r.json()).then(j => { setTop(j.entries || []); setTopLoading(false) })
+      .catch(() => setTopLoading(false))
+  }, [])
 
-  return (
-    <main className="min-h-screen bg-[#0a0b0f] text-slate-100">
-      <section className="mx-auto flex min-h-[70vh] max-w-6xl flex-col items-center justify-center px-5 py-20 text-center">
-        <div className="mb-4 rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-1 text-xs font-black uppercase tracking-[0.18em] text-sky-300">
-          RankPlug Alpha
-        </div>
-        <h1 className="text-6xl font-black tracking-tight max-md:text-4xl">
-          Multi-account ranked tracker.
-        </h1>
-        <p className="mt-4 max-w-2xl text-slate-400">
-          League first. Built to become the ranked control center for mains, smurfs, streamers and pro watchlists.
-        </p>
+  function search() {
+    const [n, t] = input.split('#')
+    if (!n || !t) return alert('Format: Name#TAG')
+    router.push(`/profile/${region}/${encodeURIComponent(n.trim())}/${encodeURIComponent(t.trim())}`)
+  }
 
-        <div className="mt-10 flex w-full max-w-2xl gap-2 rounded-2xl border border-[#1f2335] bg-[#11131a] p-2 max-sm:flex-col">
-          <select
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value)}
-            className="rounded-xl bg-[#0d0f14] px-4 py-3 text-sm font-bold outline-none"
-          >
-            {["euw", "na", "kr", "eune", "br", "jp", "lan", "las", "oce", "tr", "ru"].map((p) => (
-              <option key={p} value={p}>{p.toUpperCase()}</option>
-            ))}
-          </select>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && search()}
-            placeholder="GameName#TAG"
-            className="min-w-0 flex-1 rounded-xl bg-[#0d0f14] px-4 py-3 text-sm outline-none"
-          />
-          <button onClick={search} className="rounded-xl bg-sky-500 px-6 py-3 text-sm font-black text-white hover:bg-sky-400">
-            Search
-          </button>
-        </div>
+  return <main style={{background:'#0a0b0f',minHeight:'100vh',color:'#e8eaf2',fontFamily:'system-ui,sans-serif',padding:'40px 20px'}}>
+    <div style={{maxWidth:'720px',margin:'0 auto',textAlign:'center',marginBottom:'48px'}}>
+      <div style={{fontSize:'11px',color:'#4f8ef7',fontWeight:700,letterSpacing:'2px',marginBottom:'8px',textTransform:'uppercase'}}>Alpha</div>
+      <h1 style={{fontSize:'3.5rem',fontWeight:800,letterSpacing:'-1.5px',margin:'0 0 8px 0'}}>rankplug</h1>
+      <p style={{color:'#8b91a8',fontSize:'15px',marginBottom:'32px'}}>Multi-account ranked tracker · LoL stats done right</p>
+      <div style={{display:'flex',gap:'8px',justifyContent:'center'}}>
+        <select value={region} onChange={e => setRegion(e.target.value)} style={{background:'#11131a',border:'1px solid #1f2335',borderRadius:'10px',padding:'12px',color:'#e8eaf2',fontSize:'13px',fontWeight:600,cursor:'pointer'}}>
+          {['euw','na','kr','eune','br','jp','lan','las','oce','tr','ru'].map(r => <option key={r} value={r}>{r.toUpperCase()}</option>)}
+        </select>
+        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key==='Enter' && search()}
+          placeholder="stacksmaxxing#69420"
+          style={{background:'#11131a',border:'1px solid #1f2335',borderRadius:'10px',padding:'12px 18px',color:'#e8eaf2',fontSize:'15px',width:'320px'}}/>
+        <button onClick={search} style={{background:'#4f8ef7',border:'none',borderRadius:'10px',padding:'12px 24px',color:'#fff',fontWeight:700,cursor:'pointer',fontSize:'14px'}}>Search</button>
+      </div>
+      <div style={{marginTop:'14px',display:'flex',gap:'8px',justifyContent:'center'}}>
+        {['stacksmaxxing#69420','Faker#KR1','Caps#EUW'].map(s => (
+          <button key={s} onClick={() => setInput(s)} style={{background:'#11131a',border:'1px solid #1f2335',borderRadius:'6px',padding:'5px 11px',color:'#8b91a8',fontSize:'11px',cursor:'pointer'}}>{s}</button>
+        ))}
+      </div>
+    </div>
 
-        <div className="mt-4 flex gap-3 text-sm">
-          <button onClick={() => router.push("/leaderboard/euw")} className="text-sky-300 hover:text-sky-200">Open EUW Leaderboard →</button>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 pb-16">
-        <div className="overflow-hidden rounded-3xl border border-[#1f2335] bg-[#11131a]">
-          <div className="border-b border-[#1f2335] px-5 py-4">
-            <div className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Live Preview</div>
-            <h2 className="mt-1 text-xl font-black">EUW Challenger Solo/Duo Top 10</h2>
+    <div style={{maxWidth:'720px',margin:'0 auto',background:'#11131a',border:'1px solid #1f2335',borderRadius:'14px',padding:'18px'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'12px'}}>
+        <div style={{fontSize:'11px',fontWeight:700,color:'#8b91a8',letterSpacing:'1px',textTransform:'uppercase'}}>EUW Challenger · Top 10</div>
+        <Link href="/leaderboard/euw" style={{fontSize:'11px',color:'#4f8ef7',textDecoration:'none',fontWeight:600}}>Full leaderboard →</Link>
+      </div>
+      {topLoading && <div style={{color:'#8b91a8',fontSize:'13px',padding:'20px',textAlign:'center'}}>Loading…</div>}
+      {!topLoading && top.length === 0 && <div style={{color:'#8b91a8',fontSize:'13px',padding:'20px',textAlign:'center'}}>Leaderboard unavailable</div>}
+      {top.map(e => (
+        <div key={e.puuid} style={{display:'flex',alignItems:'center',gap:'12px',padding:'8px 0',borderBottom:'1px solid #1f2335',fontSize:'13px'}}>
+          <div style={{width:'30px',color:e.rank<=3?'#f1c40f':'#8b91a8',fontWeight:700,fontFamily:'monospace'}}>{e.rank<=3?['👑','🥈','🥉'][e.rank-1]:`#${e.rank}`}</div>
+          <div style={{flex:1,color:'#8b91a8',fontSize:'12px'}}>Challenger</div>
+          <div style={{color:'#f0c040',fontWeight:700}}>{e.leaguePoints} LP</div>
+          <div style={{color:'#8b91a8',fontSize:'11px'}}>
+            <span style={{color:'#3ecf8e'}}>{e.wins}W</span> / <span style={{color:'#f75a5a'}}>{e.losses}L</span>
           </div>
-          <div className="divide-y divide-[#1f2335]">
-            {leaders.length ? leaders.map((e) => (
-              <div key={e.summonerId} className="grid grid-cols-[80px_1fr_100px_100px] items-center px-5 py-3 text-sm">
-                <div className="font-mono font-bold text-slate-400">#{e.rank}</div>
-                <div className="font-semibold text-slate-300">Leaderboard Player</div>
-                <div className="text-right font-bold text-amber-300">{e.leaguePoints} LP</div>
-                <div className="text-right font-bold">{e.winrate}% WR</div>
-              </div>
-            )) : (
-              <div className="p-6 text-center text-sm text-slate-500">Loading preview...</div>
-            )}
-          </div>
+          <div style={{color:e.winrate>=60?'#3ecf8e':e.winrate>=50?'#f0c040':'#f75a5a',fontWeight:600,minWidth:'40px',textAlign:'right'}}>{e.winrate}%</div>
         </div>
-      </section>
-    </main>
-  );
+      ))}
+    </div>
+  </main>
 }

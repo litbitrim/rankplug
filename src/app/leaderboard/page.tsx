@@ -1,5 +1,2 @@
-import { redirect } from "next/navigation";
-
-export default function LeaderboardIndex() {
-  redirect("/leaderboard/euw");
-}
+import { redirect } from 'next/navigation'
+export default function LB() { redirect('/leaderboard/euw') }
